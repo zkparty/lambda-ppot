@@ -21,7 +21,6 @@ Resources:
   requestRetrievalFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: build
       Handler: request-retrieval.requestRetrievalHandler
       Runtime: nodejs18.x
       Architectures:
@@ -43,6 +42,14 @@ Resources:
           Properties:
             Path: /request-retrieval
             Method: POST
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - src/handlers/request-retrieval.ts
 
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable

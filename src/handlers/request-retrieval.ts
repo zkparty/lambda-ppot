@@ -22,26 +22,19 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
     if (event.httpMethod !== 'POST') {
         throw new Error(`requestRetrieval only accepts POST method, you tried: ${event.httpMethod} method.`);
     }
-    return {
-        statusCode: 200,
-        body: JSON.stringify({
-            'nico': 'serrano palacio',
-            'age': 28,
-        })
-    }
-    /*let response = null;
+    let response = null;
     try {
         // get request data
         const { email } = JSON.parse(event.body);
-        const params = {
+        const paramsToRead = {
             TableName: tableName,
-            Item: {
-                email: email,
-                addedTime: Date.now(),
+            Key: {
+                primaryKey: email,
             }
         }
         // validate email
-        const validation = validate(email);
+        // TODO: check smtp in nicoserranop@gmail.com
+        const validation = await validate(email);
         if (!validation.valid){
             return {
                 statusCode: 200,
@@ -51,9 +44,23 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
                 }),
             }
         }
-        // check it is not in the blacklist
+        return {
+            statusCode: 200,
+            body: JSON.stringify({
+                nico: 1,
+            })
+        }
+    } catch(error){
+        return {
+            statusCode: 201,
+            body: JSON.stringify({
+                error: true
+            })
+        }
+    }
+        /*// check it is not in the blacklist
         // TODO: after that, delete emails that already expired in blacklist
-        const get = await ddbDocClient.send(new GetCommand(params));
+        const get = await ddbDocClient.send(new GetCommand(paramsToRead));
         if (!get.Item){
             return {
                 statusCode: 200,
@@ -64,7 +71,14 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
             }
         }
         // add email to the blacklist for a while
-        const save = await ddbDocClient.send(new PutCommand(params));
+        const paramsToAdd = {
+            TableName: tableName,
+            Item: {
+                email: email,
+                addedTime: Date.now(),
+            }
+        }
+        const save = await ddbDocClient.send(new PutCommand(paramsToAdd));
         response = {
             registered: true,
             ...save,
@@ -78,6 +92,6 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
     }
     return {
         statusCode: 200,
-        body: JSON.stringify({nico: true}),
+        body: JSON.stringify(response),
     }*/
 }
