@@ -32,9 +32,11 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
                 primaryKey: email,
             }
         }
-        // validate email
-        // TODO: check smtp in nicoserranop@gmail.com
-        const validation = await validate(email);
+        // validate email (avoid STMP because ISP block them to prevent brute force)
+        const validation = await validate({
+            email: email,
+            validateSMTP: false,
+        });
         if (!validation.valid){
             return {
                 statusCode: 200,
@@ -44,21 +46,7 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
                 }),
             }
         }
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                nico: 1,
-            })
-        }
-    } catch(error){
-        return {
-            statusCode: 201,
-            body: JSON.stringify({
-                error: true
-            })
-        }
-    }
-        /*// check it is not in the blacklist
+        // check it is not in the blacklist
         // TODO: after that, delete emails that already expired in blacklist
         const get = await ddbDocClient.send(new GetCommand(paramsToRead));
         if (!get.Item){
@@ -93,5 +81,5 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
     return {
         statusCode: 200,
         body: JSON.stringify(response),
-    }*/
+    }
 }
