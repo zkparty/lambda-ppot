@@ -12,8 +12,11 @@ import { DynamoDBDocumentClient, PutCommand, GetCommand } from '@aws-sdk/lib-dyn
 
 const client = new DynamoDBClient({});
 const ddbDocClient = DynamoDBDocumentClient.from(client);
-
 const tableName = process.env.SAMPLE_TABLE;
+
+interface BodyResponse {
+    registered: boolean,
+}
 
 /**
  * Check if email can request retrieval
@@ -29,7 +32,7 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
         const paramsToRead = {
             TableName: tableName,
             Key: {
-                primaryKey: email,
+                email: email,
             }
         }
         // validate email (avoid STMP because ISP block them to prevent brute force)
@@ -43,19 +46,19 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
                 body: JSON.stringify({
                     registered: false,
                     ...validation,
-                }),
+                } as BodyResponse),
             }
         }
         // check it is not in the blacklist
         // TODO: after that, delete emails that already expired in blacklist
         const get = await ddbDocClient.send(new GetCommand(paramsToRead));
-        if (!get.Item){
+        if (get.Item){
             return {
                 statusCode: 200,
                 body: JSON.stringify({
                     registered: false,
                     ...get,
-                })
+                } as BodyResponse)
             }
         }
         // add email to the blacklist for a while
@@ -67,19 +70,22 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
             }
         }
         const save = await ddbDocClient.send(new PutCommand(paramsToAdd));
-        response = {
-            registered: true,
-            ...save,
-        };
+        return {
+            statusCode: 200,
+            body: JSON.stringify({
+                registered: true,
+                ...save,
+            } as BodyResponse)
+        }
     } catch (error) {
-        console.log("Error", error);
-        response = {
-            registered: false,
-            ...error,
-        };
-    }
-    return {
-        statusCode: 200,
-        body: JSON.stringify(response),
+        // catch any error and return information about it
+        console.log("Error: ", error);
+        return {
+            statusCode: 200,
+            body: JSON.stringify({
+                registered: false,
+                ...error,
+            } as BodyResponse)
+        }
     }
 }
