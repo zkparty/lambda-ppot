@@ -2,23 +2,14 @@
 import {
     APIGatewayProxyEvent,
     APIGatewayProxyResult
-  } from "aws-lambda";
-
+} from "aws-lambda";
+import { BodyResponse } from "../types";
 
 import { validate } from 'deep-email-validator';
-// Document client to connect to blacklist table
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
+import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 
-const emailsTable = process.env.EMAILS_TABLE;
-const timeToExpire = parseInt(process.env.TIME_TO_EXPIRE);
-
-const client = new DynamoDBClient({});
-const ddbDocClient = DynamoDBDocumentClient.from(client);
-
-interface BodyResponse {
-    registered: boolean,
-}
+import { ddbDocClient } from "../dynamo";
+import { emailsTable, timeToExpire } from "../constants";
 
 /**
  * Check if email can request retrieval
@@ -27,16 +18,9 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
     if (event.httpMethod !== 'POST') {
         throw new Error(`requestRetrieval only accepts POST method, you tried: ${event.httpMethod} method.`);
     }
-    let response = null;
     try {
         // get request data
         const { email } = JSON.parse(event.body);
-        const paramsToRead = {
-            TableName: emailsTable,
-            Key: {
-                email: email,
-            }
-        }
         // validate email (avoid STMP because ISP block them to prevent brute force)
         const validation = await validate({
             email: email,
@@ -52,6 +36,12 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
             }
         }
         // check it is not in the blacklist (autodelete with DynamoDB TTL feature)
+        const paramsToRead = {
+            TableName: emailsTable,
+            Key: {
+                email: email,
+            }
+        }
         const get = await ddbDocClient.send(new GetCommand(paramsToRead));
         if (get.Item){
             return {
