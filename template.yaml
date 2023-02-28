@@ -58,14 +58,24 @@ Resources:
 
   # DynamoDB table to store item: {id: &lt;ID&gt;, name: &lt;NAME&gt;}
   EmailsTable:
-    Type: AWS::Serverless::SimpleTable
+    Type: AWS::DynamoDB::Table
     Properties:
-      PrimaryKey:
-        Name: email
-        Type: String
-      ProvisionedThroughput:
-        ReadCapacityUnits: 2
-        WriteCapacityUnits: 2
+      TableName: "nico-ppot"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        -
+          AttributeName: "email"
+          AttributeType: "S"
+        -
+          AttributeName: "expiration"
+          AttributeType: "N"
+      KeySchema:
+        -
+          AttributeName: "email"
+          KeyType: "HASH"
+      TimeToLiveSpecification:
+        AttributeName: "expiration"
+        Enabled: true
 
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group

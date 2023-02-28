@@ -10,9 +10,11 @@ import { validate } from 'deep-email-validator';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
 
+const emailsTable = process.env.EMAILS_TABLE;
+const timeToExpire = parseInt(process.env.TIME_TO_EXPIRE);
+
 const client = new DynamoDBClient({});
 const ddbDocClient = DynamoDBDocumentClient.from(client);
-const tableName = process.env.EMAILS_TABLE;
 
 interface BodyResponse {
     registered: boolean,
@@ -30,7 +32,7 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
         // get request data
         const { email } = JSON.parse(event.body);
         const paramsToRead = {
-            TableName: tableName,
+            TableName: emailsTable,
             Key: {
                 email: email,
             }
@@ -49,8 +51,7 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
                 } as BodyResponse),
             }
         }
-        // check it is not in the blacklist
-        // TODO: after that, delete emails that already expired in blacklist
+        // check it is not in the blacklist (autodelete with DynamoDB TTL feature)
         const get = await ddbDocClient.send(new GetCommand(paramsToRead));
         if (get.Item){
             return {
@@ -63,10 +64,10 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
         }
         // add email to the blacklist for a while
         const paramsToAdd = {
-            TableName: tableName,
+            TableName: emailsTable,
             Item: {
                 email: email,
-                addedTime: Date.now(),
+                expiration: Math.floor(Date.now() / 1000) + timeToExpire, //  86400 = 24 hours
             }
         }
         const save = await ddbDocClient.send(new PutCommand(paramsToAdd));
