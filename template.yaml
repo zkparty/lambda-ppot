@@ -29,13 +29,13 @@ Resources:
       Timeout: 100
       Description: Get request to retrieve images from S3 Glacier Archive.
       Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        # Give Create/Read/Update/Delete Permissions to the EmailsTable
       - DynamoDBCrudPolicy:
-          TableName: !Ref SampleTable
+          TableName: !Ref EmailsTable
       Environment:
         Variables:
           # Make table name accessible as environment variable from function code during execution
-          SAMPLE_TABLE: !Ref SampleTable
+          EMAILS_TABLE: !Ref EmailsTable
       Events:
         Api:
           Type: Api
@@ -57,7 +57,7 @@ Resources:
 
 
   # DynamoDB table to store item: {id: &lt;ID&gt;, name: &lt;NAME&gt;}
-  SampleTable:
+  EmailsTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
       PrimaryKey:

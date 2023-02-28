@@ -12,7 +12,7 @@ import { DynamoDBDocumentClient, PutCommand, GetCommand } from '@aws-sdk/lib-dyn
 
 const client = new DynamoDBClient({});
 const ddbDocClient = DynamoDBDocumentClient.from(client);
-const tableName = process.env.SAMPLE_TABLE;
+const tableName = process.env.EMAILS_TABLE;
 
 interface BodyResponse {
     registered: boolean,
