@@ -62,6 +62,8 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
                 } as BodyResponse)
             }
         }
+        // TODO: send email to confirm autorization
+        // TODO: move below code to another lambda
         // add email to the blacklist for a while
         const paramsToAdd = {
             TableName: emailsTable,
