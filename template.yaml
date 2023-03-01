@@ -61,7 +61,7 @@ Resources:
   EmailsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: "nico-ppot"
+      TableName: "perpetual-powers-of-tau"
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         -
