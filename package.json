@@ -6,6 +6,7 @@
     "dependencies": {
         "@aws-sdk/client-dynamodb": "^3.188.0",
         "@aws-sdk/lib-dynamodb": "^3.188.0",
+        "aws-sdk": "^2.1327.0",
         "deep-email-validator": "^0.1.21"
     },
     "devDependencies": {

@@ -3,13 +3,13 @@ import {
     APIGatewayProxyEvent,
     APIGatewayProxyResult
 } from "aws-lambda";
-import { BodyResponse } from "../types";
-
+import { SES } from "aws-sdk";
 import { validate } from 'deep-email-validator';
-import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { GetCommand } from "@aws-sdk/lib-dynamodb";
 
+import { BodyResponse } from "../types";
 import { ddbDocClient } from "../dynamo";
-import { emailsTable, timeToExpire } from "../constants";
+import { emailsTable, region } from "../constants";
 
 /**
  * Check if email can request retrieval
@@ -52,22 +52,27 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
                 } as BodyResponse)
             }
         }
-        // TODO: send email to confirm autorization
-        // TODO: move below code to another lambda
-        // add email to the blacklist for a while
-        const paramsToAdd = {
-            TableName: emailsTable,
-            Item: {
-                email: email,
-                expiration: Math.floor(Date.now() / 1000) + timeToExpire, //  86400 = 24 hours
-            }
-        }
-        const save = await ddbDocClient.send(new PutCommand(paramsToAdd));
+        // send email to confirm autorization
+        const sesClient = new SES({ region: region });
+        const paramsForEmail = {
+            Destination: {
+                ToAddresses: [email],
+            },
+            Message: {
+                Body: {
+                Text: { Data: "Test" },
+                },
+
+                Subject: { Data: "Test Email" },
+            },
+            Source: "contact@inno-maps.com",
+        };
+        const resultEmail = await sesClient.sendEmail(paramsForEmail).promise();
         return {
             statusCode: 200,
             body: JSON.stringify({
                 registered: true,
-                ...save,
+                ...resultEmail,
             } as BodyResponse)
         }
     } catch (error) {
