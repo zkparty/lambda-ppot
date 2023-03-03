@@ -89,11 +89,12 @@ async function getItemFromDB(email: string): Promise<Item> {
 async function setExpirationInItem(email: string): Promise<UpdateCommandOutput> {
     const paramsToBlock = {
         TableName: EMAILS_TABLE,
-        Key: email,
-        UpdateExpression: 'ADD expiration 1',
+        Key: { "email": email },
+        UpdateExpression: 'ADD #expiration :set',
+        ExpressionAttributeNames: { '#expiration': 'expiration' },
+        ExpressionAttributeValues: { ':set': Math.floor(Date.now() / 1000) + TIME_TO_EXPIRE_SPAM },
         ReturnValues: 'ALL_NEW',
     };
-    // TODO: update is not working
     const block = await ddbDocClient.send(new UpdateCommand(paramsToBlock));
     return block;
 
@@ -102,11 +103,12 @@ async function setExpirationInItem(email: string): Promise<UpdateCommandOutput> 
 async function setTryInItem(email: string): Promise<UpdateCommandOutput> {
     const paramsToUpdate = {
         TableName: EMAILS_TABLE,
-        Key: email,
-        UpdateExpression: 'ADD tries 1',
+        Key: { "email": email },
+        UpdateExpression: 'ADD #tries :increment',
+        ExpressionAttributeNames: { '#tries': 'tries' },
+        ExpressionAttributeValues: { ':increment': 1 },
         ReturnValues: 'ALL_NEW',
     };
-    // TODO: update is not working
     const update = await ddbDocClient.send(new UpdateCommand(paramsToUpdate));
     return update;
 }
@@ -125,6 +127,7 @@ async function addToDB(email: string): Promise<PutCommandOutput>{
 
 async function sendEmail(email: string) {
     const sesClient = new SES({ region: REGION });
+    // TODO: create the JWT token containing the email for the link
     const paramsForEmail = {
         Destination: {
             ToAddresses: [email],
