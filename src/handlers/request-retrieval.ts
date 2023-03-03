@@ -1,15 +1,14 @@
-// Types
 import {
     APIGatewayProxyEvent,
     APIGatewayProxyResult
 } from "aws-lambda";
 import { SES } from "aws-sdk";
 import { validate } from 'deep-email-validator';
-import { GetCommand } from "@aws-sdk/lib-dynamodb";
+import { GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 
 import { BodyResponse } from "../types";
 import { ddbDocClient } from "../dynamo";
-import { EMAILS_TABLE, REGION } from "../constants";
+import { EMAILS_TABLE, REGION, TRIES_LIMIT, TIME_TO_EXPIRE_SPAM } from "../constants";
 
 /**
  * Check if email can request retrieval
@@ -43,15 +42,62 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
             }
         }
         const get = await ddbDocClient.send(new GetCommand(paramsToRead));
-        if (get.Item){
+        const item = get.Item;
+        if (item){
+            // check that it is not an unauthorized spam attack
+            if (item.tries > TRIES_LIMIT){
+                if (item.expiration){
+                    return {
+                        statusCode: 200,
+                        body: JSON.stringify({
+                            registered: false,
+                            ...get,
+                        } as BodyResponse)
+                    }
+                }
+                // TODO: set expiration to TIME_TO_EXPIRE_SPAM
+                const paramsToBlock = {
+                    TableName: EMAILS_TABLE,
+                    Key: email,
+                    UpdateExpression: 'ADD expiration 1',
+                    ReturnValues: 'ALL_NEW',
+                }
+                const block = await ddbDocClient.send(new UpdateCommand(paramsToBlock));
+                return {
+                    statusCode: 200,
+                    body: JSON.stringify({
+                        registered: false,
+                        ...block,
+                        ...get,
+                    } as BodyResponse)
+                }
+            }
+            // TODO: update is not working
+            const paramsToUpdate = {
+                TableName: EMAILS_TABLE,
+                Key: email,
+                UpdateExpression: 'ADD tries 1',
+                ReturnValues: 'ALL_NEW',
+            }
+            const update = await ddbDocClient.send(new UpdateCommand(paramsToUpdate));
             return {
                 statusCode: 200,
                 body: JSON.stringify({
                     registered: false,
+                    ...update,
                     ...get,
                 } as BodyResponse)
             }
         }
+        // add email to the blacklist for a while
+        const paramsToAdd = {
+            TableName: EMAILS_TABLE,
+            Item: {
+                email: email,
+                tries: 0,
+            }
+        }
+        const save = await ddbDocClient.send(new PutCommand(paramsToAdd));
         // send email to confirm autorization
         const sesClient = new SES({ region: REGION });
         const paramsForEmail = {
@@ -72,6 +118,7 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
             statusCode: 200,
             body: JSON.stringify({
                 registered: true,
+                ...save,
                 ...resultEmail,
             } as BodyResponse)
         }
