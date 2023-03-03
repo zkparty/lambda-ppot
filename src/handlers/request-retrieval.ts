@@ -9,7 +9,7 @@ import { GetCommand } from "@aws-sdk/lib-dynamodb";
 
 import { BodyResponse } from "../types";
 import { ddbDocClient } from "../dynamo";
-import { emailsTable, region } from "../constants";
+import { EMAILS_TABLE, REGION } from "../constants";
 
 /**
  * Check if email can request retrieval
@@ -37,7 +37,7 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
         }
         // check it is not in the blacklist (autodelete with DynamoDB TTL feature)
         const paramsToRead = {
-            TableName: emailsTable,
+            TableName: EMAILS_TABLE,
             Key: {
                 email: email,
             }
@@ -53,7 +53,7 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
             }
         }
         // send email to confirm autorization
-        const sesClient = new SES({ region: region });
+        const sesClient = new SES({ region: REGION });
         const paramsForEmail = {
             Destination: {
                 ToAddresses: [email],

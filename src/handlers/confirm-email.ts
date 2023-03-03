@@ -7,7 +7,7 @@ import { BodyResponse } from "../types";
 import { PutCommand } from "@aws-sdk/lib-dynamodb";
 
 import { ddbDocClient } from "../dynamo";
-import { emailsTable, timeToExpire } from "../constants";
+import { EMAILS_TABLE, TIME_TO_EXPIRE } from "../constants";
 
 
 /*
@@ -22,10 +22,10 @@ export const confirmEmailHandler = async (event: APIGatewayProxyEvent): Promise<
         const { email } = JSON.parse(event.body);
         // add email to the blacklist for a while
         const paramsToAdd = {
-            TableName: emailsTable,
+            TableName: EMAILS_TABLE,
             Item: {
                 email: email,
-                expiration: Math.floor(Date.now() / 1000) + timeToExpire, //  86400 = 24 hours
+                expiration: Math.floor(Date.now() / 1000) + TIME_TO_EXPIRE, //  86400 = 24 hours
             }
         }
         const save = await ddbDocClient.send(new PutCommand(paramsToAdd));
