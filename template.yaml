@@ -25,7 +25,7 @@ Resources:
       Runtime: nodejs18.x
       Architectures:
       - x86_64
-      MemorySize: 256
+      MemorySize: 10240
       Timeout: 100
       Description: Get request to retrieve images from S3 Glacier Archive.
       Policies:
@@ -37,9 +37,11 @@ Resources:
           # Make table name accessible as environment variable from function code during execution
           REGION: eu-central-1
           EMAILS_TABLE: !Ref EmailsTable
+          JWT_PRIVATE_KEY: super-secret-sha256-hex-string
+          JWT_EXPIRATION_TIME: 300
           TRIES_LIMIT: 3
-          TIME_TO_EXPIRE_CONFIRMED_EMAIL: 20
           TIME_TO_EXPIRE_SPAM: 40
+          TIME_TO_EXPIRE_CONFIRMED_EMAIL: 20
       Events:
         Api:
           Type: Api

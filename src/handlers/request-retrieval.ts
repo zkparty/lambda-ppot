@@ -2,14 +2,16 @@ import {
     APIGatewayProxyEvent,
     APIGatewayProxyResult
 } from "aws-lambda";
-import { SES } from "aws-sdk";
+//import { SES } from "aws-sdk";
+import {sign } from 'jsonwebtoken';
 import { validate } from 'deep-email-validator';
+import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import { OutputFormat as ValidationOutputFormat } from "deep-email-validator/dist/output/output";
 import { GetCommand, PutCommand, PutCommandOutput, UpdateCommand, UpdateCommandOutput } from "@aws-sdk/lib-dynamodb";
 
 import { BodyResponse, Item } from "../types";
 import { ddbDocClient } from "../dynamo";
-import { EMAILS_TABLE, REGION, TRIES_LIMIT, TIME_TO_EXPIRE_SPAM } from "../constants";
+import { EMAILS_TABLE, REGION, TRIES_LIMIT, TIME_TO_EXPIRE_SPAM, JWT_PRIVATE_KEY, JWT_EXPIRATION_TIME } from "../constants";
 
 /**
  * Check if email can request retrieval
@@ -126,21 +128,33 @@ async function addToDB(email: string): Promise<PutCommandOutput>{
 }
 
 async function sendEmail(email: string) {
-    const sesClient = new SES({ region: REGION });
-    // TODO: create the JWT token containing the email for the link
+    const sesClient = new SESClient({ region: REGION });
+    const token = sign({email: email}, JWT_PRIVATE_KEY, { expiresIn: JWT_EXPIRATION_TIME });
+    // TODO: email is not being sent
     const paramsForEmail = {
         Destination: {
             ToAddresses: [email],
         },
         Message: {
             Body: {
-            Text: { Data: "Test" },
+                Html: {
+                    Data: `
+                    <p>
+                        You have requested an archive retrieval for one of the Perpetual
+                        Powers of Tau contributions. To do so you need to verify your email
+                        by clicking the following link:
+                    </p>
+                    <a href="${token}">${token}</a>
+                    <p>
+                        If you did not send this request. Please ignore this email.
+                    </p>
+                    `
+                }
             },
-
-            Subject: { Data: "Test Email" },
+            Subject: { Data: "Retrieval Request for Perpetual Powers of Tau Archive" },
         },
-        Source: "contact@inno-maps.com",
+        Source: "servicio@inno-maps.com",
     };
-    const resultEmail = await sesClient.sendEmail(paramsForEmail).promise();
+    const resultEmail = await sesClient.send( new SendEmailCommand(paramsForEmail) );
     return resultEmail;
 }
