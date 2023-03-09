@@ -7,11 +7,26 @@ import {sign } from 'jsonwebtoken';
 import { validate } from 'deep-email-validator';
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import { OutputFormat as ValidationOutputFormat } from "deep-email-validator/dist/output/output";
-import { GetCommand, PutCommand, PutCommandOutput, UpdateCommand, UpdateCommandOutput } from "@aws-sdk/lib-dynamodb";
+import {
+    GetCommand,
+    PutCommand,
+    PutCommandOutput,
+    UpdateCommand,
+    UpdateCommandOutput
+} from "@aws-sdk/lib-dynamodb";
 
 import { BodyResponse, Item } from "../types";
 import { ddbDocClient } from "../dynamo";
-import { EMAILS_TABLE, REGION, TRIES_LIMIT, TIME_TO_EXPIRE_SPAM, JWT_PRIVATE_KEY, JWT_EXPIRATION_TIME } from "../constants";
+import {
+    EMAILS_TABLE,
+    REGION,
+    TRIES_LIMIT,
+    TIME_TO_EXPIRE_SPAM,
+    JWT_PRIVATE_KEY,
+    JWT_EXPIRATION_TIME,
+    EMAIL_FROM,
+    EMAIL_RETURN,
+} from "../constants";
 
 /**
  * Check if email can request retrieval
@@ -138,6 +153,7 @@ async function sendEmail(email: string) {
         Message: {
             Body: {
                 Html: {
+                    Charset: "UTF-8",
                     Data: `
                     <p>
                         You have requested an archive retrieval for one of the Perpetual
@@ -153,7 +169,8 @@ async function sendEmail(email: string) {
             },
             Subject: { Data: "Retrieval Request for Perpetual Powers of Tau Archive" },
         },
-        Source: "servicio@inno-maps.com",
+        Source: EMAIL_FROM,
+        ReturnPath: EMAIL_RETURN,
     };
     const resultEmail = await sesClient.send( new SendEmailCommand(paramsForEmail) );
     return resultEmail;
