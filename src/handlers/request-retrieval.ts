@@ -145,7 +145,6 @@ async function addToDB(email: string): Promise<PutCommandOutput>{
 async function sendEmail(email: string) {
     const sesClient = new SESClient({ region: REGION });
     const token = sign({email: email}, JWT_PRIVATE_KEY, { expiresIn: JWT_EXPIRATION_TIME });
-    // TODO: email is not being sent
     const paramsForEmail = {
         Destination: {
             ToAddresses: [email],
