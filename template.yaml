@@ -12,6 +12,24 @@ Description: >-
 Transform:
 - AWS::Serverless-2016-10-31
 
+Globals:
+  Function:
+    Runtime: nodejs18.x
+    MemorySize: 20240
+    Timeout: 100
+    Environment:
+      Variables:
+        # Make table name accessible as environment variable from function code during execution
+        REGION: eu-central-1
+        EMAILS_TABLE: !Ref EmailsTable
+        EMAIL_FROM: contact@perpetualpowersoftau.com
+        EMAIL_RETURN: nico@inno-maps.com
+        JWT_PRIVATE_KEY: super-secret-sha256-hex-string
+        JWT_EXPIRATION_TIME: 300
+        TRIES_LIMIT: 3
+        TIME_TO_EXPIRE_SPAM: 40
+        TIME_TO_EXPIRE_CONFIRMED_EMAIL: 20
+
 # Resources declares the AWS resources that you want to include in the stack
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
 Resources:
@@ -22,28 +40,11 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: request-retrieval.requestRetrievalHandler
-      Runtime: nodejs18.x
-      Architectures:
-      - x86_64
-      MemorySize: 10240
-      Timeout: 100
       Description: Get request to retrieve images from S3 Glacier Archive.
       Policies:
         # Give Create/Read/Update/Delete Permissions to the EmailsTable
       - DynamoDBCrudPolicy:
           TableName: !Ref EmailsTable
-      Environment:
-        Variables:
-          # Make table name accessible as environment variable from function code during execution
-          REGION: eu-central-1
-          EMAILS_TABLE: !Ref EmailsTable
-          EMAIL_FROM: contact@perpetualpowersoftau.com
-          EMAIL_RETURN: nico@inno-maps.com
-          JWT_PRIVATE_KEY: super-secret-sha256-hex-string
-          JWT_EXPIRATION_TIME: 300
-          TRIES_LIMIT: 3
-          TIME_TO_EXPIRE_SPAM: 40
-          TIME_TO_EXPIRE_CONFIRMED_EMAIL: 20
       Events:
         Api:
           Type: Api
@@ -58,6 +59,34 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - src/handlers/request-retrieval.ts
+
+  confirmEmailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: confirm-email.confirmEmailHandler
+      Description: Confirm email ownership to retrieve images from S3 Glacier Archive.
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the EmailsTable
+      - DynamoDBCrudPolicy:
+          TableName: !Ref EmailsTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /confirm-email
+            Method: GET
+            RequestParameters:
+              querystring:
+                token:
+                  Required: true
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - src/handlers/confirm-email.ts
 
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
@@ -88,26 +117,27 @@ Resources:
         AttributeName: "expiration"
         Enabled: true
 
-  ApplicationResourceGroup:
-    Type: AWS::ResourceGroups::Group
-    Properties:
-      Name:
-        Fn::Join:
-        - ''
-        - - ApplicationInsights-SAM-
-          - Ref: AWS::StackName
-      ResourceQuery:
-        Type: CLOUDFORMATION_STACK_1_0
-  ApplicationInsightsMonitoring:
-    Type: AWS::ApplicationInsights::Application
-    Properties:
-      ResourceGroupName:
-        Fn::Join:
-        - ''
-        - - ApplicationInsights-SAM-
-          - Ref: AWS::StackName
-      AutoConfigurationEnabled: 'true'
-    DependsOn: ApplicationResourceGroup
+ApplicationResourceGroup:
+  Type: AWS::ResourceGroups::Group
+  Properties:
+    Name:
+      Fn::Join:
+      - ''
+      - - ApplicationInsights-SAM-
+        - Ref: AWS::StackName
+    ResourceQuery:
+      Type: CLOUDFORMATION_STACK_1_0
+ApplicationInsightsMonitoring:
+  Type: AWS::ApplicationInsights::Application
+  Properties:
+    ResourceGroupName:
+      Fn::Join:
+      - ''
+      - - ApplicationInsights-SAM-
+        - Ref: AWS::StackName
+    AutoConfigurationEnabled: 'true'
+  DependsOn: ApplicationResourceGroup
+
 Outputs:
   WebEndpoint:
     Description: API Gateway endpoint URL for Prod stage

@@ -1,0 +1,7 @@
+{
+
+    "httpMethod": "GET",
+    "pathParameters": {
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5pY29AaW5uby1tYXBzLmNvbSIsImlhdCI6MTY3ODU0OTA1NCwiZXhwIjoxNjc4NTQ5MzU0fQ.zTpzlWVUv15Yc9lVs9V8R0Y9Ear0KPyZ_2JExmMs4Fw"
+    }
+}
