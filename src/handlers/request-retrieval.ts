@@ -2,11 +2,15 @@ import {
     APIGatewayProxyEvent,
     APIGatewayProxyResult
 } from "aws-lambda";
-//import { SES } from "aws-sdk";
-import {sign } from 'jsonwebtoken';
+import { sign } from 'jsonwebtoken';
 import { validate } from 'deep-email-validator';
-import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
-import { OutputFormat as ValidationOutputFormat } from "deep-email-validator/dist/output/output";
+import {
+    SESClient,
+    SendEmailCommand
+} from "@aws-sdk/client-ses";
+import {
+    OutputFormat as ValidationOutputFormat
+} from "deep-email-validator/dist/output/output";
 import {
     GetCommand,
     PutCommand,
