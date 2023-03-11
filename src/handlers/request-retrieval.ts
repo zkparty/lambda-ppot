@@ -60,7 +60,7 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
         }
 
         const add = await addToDB(email);
-        const send = sendEmail(email);
+        const send = await sendEmail(email);
         return createResponse({...add, ...send}, true);
 
     } catch (error) {
