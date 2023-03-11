@@ -37,6 +37,8 @@ Resources:
           # Make table name accessible as environment variable from function code during execution
           REGION: eu-central-1
           EMAILS_TABLE: !Ref EmailsTable
+          EMAIL_FROM: contact@perpetualpowersoftau.com
+          EMAIL_RETURN: nico@inno-maps.com
           JWT_PRIVATE_KEY: super-secret-sha256-hex-string
           JWT_EXPIRATION_TIME: 300
           TRIES_LIMIT: 3
