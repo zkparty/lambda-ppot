@@ -7,3 +7,9 @@ export interface Item {
     tries: number,
     expiration: number,
 }
+
+export interface Payload {
+    email: string
+    iat: number,
+    exp: number
+}
