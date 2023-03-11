@@ -1,5 +1,7 @@
 export interface BodyResponse {
-    registered: boolean,
+    registered?: boolean,
+    blacklisted?: boolean,
+    notified?: boolean,
 }
 
 export interface Item {
@@ -11,5 +13,5 @@ export interface Item {
 export interface Payload {
     email: string
     iat: number,
-    exp: number
+    exp: number,
 }

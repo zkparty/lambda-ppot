@@ -27,6 +27,7 @@ export const confirmEmailHandler = async (event: APIGatewayProxyEvent): Promise<
 
         // add to blacklist for a while
         const blacklist = await addToBlacklist(email);
+        // TODO: start moving file from S3 Glacier to S3 Standard
         return createResponse({...blacklist}, true);
 
     } catch (error) {
@@ -36,11 +37,11 @@ export const confirmEmailHandler = async (event: APIGatewayProxyEvent): Promise<
     }
 }
 
-function createResponse(data: any, registered: boolean): APIGatewayProxyResult {
+function createResponse(data: any, blacklisted: boolean): APIGatewayProxyResult {
     return {
         statusCode: 200,
         body: JSON.stringify({
-            blacklisted: registered,
+            blacklisted: blacklisted,
             ...data,
         } as BodyResponse)
     }
