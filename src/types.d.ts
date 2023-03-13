@@ -11,7 +11,8 @@ export interface Item {
 }
 
 export interface Payload {
-    email: string
-    iat: number,
-    exp: number,
+    email: string,
+    file: string,
+    iat?: number,
+    exp?: number,
 }

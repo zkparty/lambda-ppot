@@ -1,4 +1,4 @@
 {
     "httpMethod": "POST",
-    "body": "{\"email\": \"nico@inno-maps.com\"}"
+    "body": "{\"email\": \"nico@inno-maps.com\", \"file\":\"current_state.txt\"}"
 }

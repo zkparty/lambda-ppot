@@ -9,3 +9,8 @@ export const JWT_EXPIRATION_TIME = parseInt(process.env.JWT_EXPIRATION_TIME);
 export const TRIES_LIMIT = parseInt(process.env.TRIES_LIMIT);
 export const TIME_TO_EXPIRE_SPAM = parseInt(process.env.TIME_TO_EXPIRE_SPAM);
 export const TIME_TO_EXPIRE_CONFIRMED_EMAIL = parseInt(process.env.TIME_TO_EXPIRE_CONFIRMED_EMAIL);
+
+export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
+export const S3_PREFIX = process.env.S3_PREFIX;
+export const RETRIEVAL_TYPE = process.env.RETRIEVAL_TYPE;
+export const DAYS_TO_RESTORE = parseInt(process.env.DAYS_TO_RESTORE);

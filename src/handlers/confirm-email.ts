@@ -11,7 +11,8 @@ import {
     S3Client,
     RestoreObjectCommand,
     RestoreObjectCommandOutput,
-    RestoreObjectCommandInput
+    HeadObjectCommand,
+    HeadObjectCommandOutput
 } from "@aws-sdk/client-s3";
 
 import { ddbDocClient } from "../dynamo";
@@ -20,7 +21,11 @@ import {
     REGION,
     EMAILS_TABLE,
     JWT_PRIVATE_KEY,
-    TIME_TO_EXPIRE_CONFIRMED_EMAIL
+    TIME_TO_EXPIRE_CONFIRMED_EMAIL,
+    S3_BUCKET_NAME,
+    S3_PREFIX,
+    DAYS_TO_RESTORE,
+    RETRIEVAL_TYPE
 } from "../constants";
 
 
@@ -33,13 +38,12 @@ export const confirmEmailHandler = async (event: APIGatewayProxyEvent): Promise<
     }
     try {
         const { token } = event.queryStringParameters;
-        const { email } = verify(token, JWT_PRIVATE_KEY) as Payload;
+        const { email, file } = verify(token, JWT_PRIVATE_KEY) as Payload;
 
-        // TODO: if user is in blacklist then only respond: blacklisted: true ? what if it is requesting other file?
         // add to blacklist for a while
         const blacklist = await addToBlacklist(email);
-        // TODO: start moving file from S3 Glacier to S3 Standard
-        const restore = await restoreGlacierObject();
+        // start moving file from S3 Glacier to S3 Standard
+        const restore = await restoreGlacierObject(file);
         return createResponse({blacklist, restore}, true);
 
     } catch (error) {
@@ -59,19 +63,24 @@ function createResponse(data: any, blacklisted: boolean): APIGatewayProxyResult 
     }
 }
 
-async function restoreGlacierObject(): Promise<RestoreObjectCommandOutput> {
+async function restoreGlacierObject(file: string): Promise<HeadObjectCommandOutput|RestoreObjectCommandOutput> {
     const s3Client = new S3Client({ region: REGION });
+    const paramsToConsult = {
+        Bucket: S3_BUCKET_NAME,
+        Key: `${S3_PREFIX}/${file}`,
+    };
+    const consult = await s3Client.send( new HeadObjectCommand(paramsToConsult) );
+    if (consult.Restore === 'ongoing-request="true"'){
+        return consult;
+    }
     const paramsToRestore = {
-        Bucket: 'perpetual-powers-of-tau',
-        Key: 'challenges/current_state.txt',
+        Bucket: S3_BUCKET_NAME,
+        Key: `${S3_PREFIX}/${file}`,
         RestoreRequest: {
-            Days: 1,
-            GlacierJobParameters: {
-                Tier: 'Standard'
-            },
-            Tier: 'Standard'
+            Days: DAYS_TO_RESTORE,
+            GlacierJobParameters: { Tier: RETRIEVAL_TYPE },
         },
-    } as RestoreObjectCommandInput;
+    };
     const restore = await s3Client.send( new RestoreObjectCommand(paramsToRestore) );
     s3Client.destroy();
     return restore;

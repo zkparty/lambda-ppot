@@ -26,9 +26,13 @@ Globals:
         EMAIL_RETURN: nico@inno-maps.com
         JWT_PRIVATE_KEY: super-secret-sha256-hex-string
         JWT_EXPIRATION_TIME: 300000
-        TRIES_LIMIT: 3
-        TIME_TO_EXPIRE_SPAM: 40
+        TRIES_LIMIT: 1
+        TIME_TO_EXPIRE_SPAM: 10
         TIME_TO_EXPIRE_CONFIRMED_EMAIL: 20
+        S3_BUCKET_NAME: perpetual-powers-of-tau
+        S3_PREFIX: challenges
+        RETRIEVAL_TYPE: Bulk
+        DAYS_TO_RESTORE: 1
 
 # Resources declares the AWS resources that you want to include in the stack
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html

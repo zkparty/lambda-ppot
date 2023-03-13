@@ -2,6 +2,6 @@
 
     "httpMethod": "GET",
     "queryStringParameters": {
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5pY29AaW5uby1tYXBzLmNvbSIsImlhdCI6MTY3ODY4MDAyMCwiZXhwIjoxNjc4OTgwMDIwfQ.PecDyc2zG91YrTEr7nLXF7DcBSfn3vJ1UllXbfqqHA4"
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5pY29AaW5uby1tYXBzLmNvbSIsImZpbGUiOiJjdXJyZW50X3N0YXRlLnR4dCIsImlhdCI6MTY3ODc0OTIxMiwiZXhwIjoxNjc5MDQ5MjEyfQ.QYjmEBSePtA945mqjN3nlMdecbbMtmLvNrxUbhjsBVs"
     }
 }

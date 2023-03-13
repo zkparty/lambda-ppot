@@ -19,7 +19,7 @@ import {
     UpdateCommandOutput
 } from "@aws-sdk/lib-dynamodb";
 
-import { BodyResponse, Item } from "../types";
+import { BodyResponse, Item, Payload } from "../types";
 import { ddbDocClient } from "../dynamo";
 import {
     EMAILS_TABLE,
@@ -41,7 +41,7 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
     }
     try {
         // get request data
-        const { email } = JSON.parse(event.body);
+        const { email, file } = JSON.parse(event.body) as Payload;
         // validate email
         const [validation, invalid] = await validateEmail(email);
         if (invalid){
@@ -64,7 +64,7 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
         }
 
         const add = await addToDB(email);
-        const send = await sendEmail(email);
+        const send = await sendEmail(email, file);
         return createResponse({...add, ...send}, true);
 
     } catch (error) {
@@ -139,7 +139,7 @@ async function addToDB(email: string): Promise<PutCommandOutput>{
         TableName: EMAILS_TABLE,
         Item: {
             email: email,
-            tries: 0,
+            tries: 1,
         }
     }
     const save = await ddbDocClient.send(new PutCommand(paramsToAdd));
@@ -147,9 +147,10 @@ async function addToDB(email: string): Promise<PutCommandOutput>{
     return save;
 }
 
-async function sendEmail(email: string) {
+async function sendEmail(email: string, file: string) {
     const sesClient = new SESClient({ region: REGION });
-    const token = sign({email: email}, JWT_PRIVATE_KEY, { expiresIn: JWT_EXPIRATION_TIME });
+    const payload: Payload = {email, file};
+    const token = sign(payload, JWT_PRIVATE_KEY, { expiresIn: JWT_EXPIRATION_TIME });
     const paramsForEmail = {
         Destination: {
             ToAddresses: [email],
