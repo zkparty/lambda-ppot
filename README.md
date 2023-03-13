@@ -1,16 +1,23 @@
 # lambda-ppot
 
+## Commands
+
+1. `sam build | sam local invoke requestRetrievalFunction --event .\events\event-request-retrieval.json --env-vars .\env.json`
+2. `sam build | sam local invoke confirmEmailFunction --event .\events\event-confirm-email.json --env-vars .\env.json`
+
+
+
 This project contains source code and supporting files for a serverless application that you can deploy with the AWS Serverless Application Model (AWS SAM) command line interface (CLI). It includes the following files and folders:
 
 - `src` - Code for the application's Lambda function.
 - `events` - Invocation events that you can use to invoke the function.
-- `__tests__` - Unit tests for the application code. 
+- `__tests__` - Unit tests for the application code.
 - `template.yaml` - A template that defines the application's AWS resources.
 
 The application uses several AWS resources, including Lambda functions, an API Gateway API, and Amazon DynamoDB tables. These resources are defined in the `template.yaml` file in this project. You can update the template to add AWS resources through the same deployment process that updates your application code.
 
-If you prefer to use an integrated development environment (IDE) to build and test your application, you can use the AWS Toolkit.  
-The AWS Toolkit is an open-source plugin for popular IDEs that uses the AWS SAM CLI to build and deploy serverless applications on AWS. The AWS Toolkit also adds step-through debugging for Lambda function code. 
+If you prefer to use an integrated development environment (IDE) to build and test your application, you can use the AWS Toolkit.
+The AWS Toolkit is an open-source plugin for popular IDEs that uses the AWS SAM CLI to build and deploy serverless applications on AWS. The AWS Toolkit also adds step-through debugging for Lambda function code.
 
 To get started, see the following:
 
@@ -105,7 +112,7 @@ Resources:
       Handler: src/handlers/get-all-items.getAllItemsHandler
       Runtime: nodejs18.x
       DeadLetterQueue:
-        Type: SQS 
+        Type: SQS
         TargetArn: !GetAtt MyQueue.Arn
       Policies:
         - SQSSendMessagePolicy:
