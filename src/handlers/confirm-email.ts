@@ -57,5 +57,6 @@ async function addToBlacklist(email: string): Promise<PutCommandOutput>{
         ReturnValues: 'ALL_NEW',
     };
     const blacklist = await ddbDocClient.send(new UpdateCommand(paramsToBlacklist));
+    ddbDocClient.destroy();
     return blacklist;
 }

@@ -143,6 +143,7 @@ async function addToDB(email: string): Promise<PutCommandOutput>{
         }
     }
     const save = await ddbDocClient.send(new PutCommand(paramsToAdd));
+    ddbDocClient.destroy();
     return save;
 }
 
@@ -176,5 +177,6 @@ async function sendEmail(email: string) {
         ReturnPath: EMAIL_RETURN,
     };
     const resultEmail = await sesClient.send( new SendEmailCommand(paramsForEmail) );
+    sesClient.destroy()
     return resultEmail;
 }
