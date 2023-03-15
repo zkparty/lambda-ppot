@@ -49,6 +49,7 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
         }
         const item = await getItemFromDB(email);
         // check email is not in blacklist
+        let db;
         if (item){
             // check it has not tried too many times
             if (item.tries > TRIES_LIMIT){
@@ -59,13 +60,15 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
                 const expire = await setExpirationInItem(email);
                 return createResponse({...item, ...expire}, false);
             }
-            const tries = await setTryInItem(email);
-            return createResponse({...item, ...tries}, false);
+            // increase number of tries for user
+            db = await setTryInItem(email);
+        } else {
+            // add user to the db
+            db = await addToDB(email);
         }
 
-        const add = await addToDB(email);
         const send = await sendEmail(email, file);
-        return createResponse({...add, ...send}, true);
+        return createResponse({...db, ...send}, true);
 
     } catch (error) {
         // catch any error and return information about it
@@ -178,6 +181,6 @@ async function sendEmail(email: string, file: string) {
         ReturnPath: EMAIL_RETURN,
     };
     const resultEmail = await sesClient.send( new SendEmailCommand(paramsForEmail) );
-    sesClient.destroy()
+    sesClient.destroy();
     return resultEmail;
 }
