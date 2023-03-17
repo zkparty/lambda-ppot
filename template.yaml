@@ -80,9 +80,8 @@ Resources:
             Path: /confirm-email
             Method: GET
             RequestParameters:
-              querystring:
-                token:
-                  Required: true
+            - method.request.querystring.token:
+                Required: true
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -101,18 +100,11 @@ Resources:
   EmailsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: "perpetual-powers-of-tau"
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         -
           AttributeName: "email"
           AttributeType: "S"
-        -
-          AttributeName: "expiration"
-          AttributeType: "N"
-        -
-          AttributeName: "tries"
-          AttributeType: "N"
       KeySchema:
         -
           AttributeName: "email"
@@ -121,26 +113,26 @@ Resources:
         AttributeName: "expiration"
         Enabled: true
 
-ApplicationResourceGroup:
-  Type: AWS::ResourceGroups::Group
-  Properties:
-    Name:
-      Fn::Join:
-      - ''
-      - - ApplicationInsights-SAM-
-        - Ref: AWS::StackName
-    ResourceQuery:
-      Type: CLOUDFORMATION_STACK_1_0
-ApplicationInsightsMonitoring:
-  Type: AWS::ApplicationInsights::Application
-  Properties:
-    ResourceGroupName:
-      Fn::Join:
-      - ''
-      - - ApplicationInsights-SAM-
-        - Ref: AWS::StackName
-    AutoConfigurationEnabled: 'true'
-  DependsOn: ApplicationResourceGroup
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name:
+        Fn::Join:
+        - ''
+        - - ApplicationInsights-SAM-
+          - Ref: AWS::StackName
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName:
+        Fn::Join:
+        - ''
+        - - ApplicationInsights-SAM-
+          - Ref: AWS::StackName
+      AutoConfigurationEnabled: 'true'
+    DependsOn: ApplicationResourceGroup
 
 Outputs:
   WebEndpoint:
