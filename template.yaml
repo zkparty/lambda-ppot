@@ -15,7 +15,7 @@ Transform:
 Globals:
   Function:
     Runtime: nodejs18.x
-    MemorySize: 20240
+    MemorySize: 128
     Timeout: 100
     Environment:
       Variables:
@@ -45,6 +45,7 @@ Resources:
     Properties:
       Handler: request-retrieval.requestRetrievalHandler
       Description: Get request to retrieve images from S3 Glacier Archive.
+      Role: arn:aws:iam::490752553772:role/perpertual-powers-of-tau-lambda
       Policies:
         # Give Create/Read/Update/Delete Permissions to the EmailsTable
       - DynamoDBCrudPolicy:
@@ -69,6 +70,7 @@ Resources:
     Properties:
       Handler: confirm-email.confirmEmailHandler
       Description: Confirm email ownership to retrieve images from S3 Glacier Archive.
+      Role: arn:aws:iam::490752553772:role/perpertual-powers-of-tau-lambda
       Policies:
         # Give Create/Read/Update/Delete Permissions to the EmailsTable
       - DynamoDBWritePolicy:
@@ -100,6 +102,7 @@ Resources:
   EmailsTable:
     Type: AWS::DynamoDB::Table
     Properties:
+      TableName: perpetual-powers-of-tau
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         -
