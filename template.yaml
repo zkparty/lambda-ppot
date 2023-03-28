@@ -17,6 +17,12 @@ Globals:
     Runtime: nodejs18.x
     MemorySize: 128
     Timeout: 100
+    VpcConfig:
+      SecurityGroupIds:
+        - sg-06981620dc30c36d1
+        - sg-012960140b3022393
+      SubnetIds:
+        - subnet-0b6f3967bc7afb848
     Environment:
       Variables:
         # Make table name accessible as environment variable from function code during execution
