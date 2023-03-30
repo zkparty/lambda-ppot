@@ -8,6 +8,7 @@
         "@aws-sdk/client-s3": "^3.289.0",
         "@aws-sdk/client-ses": "^3.289.0",
         "@aws-sdk/lib-dynamodb": "^3.284.0",
+        "@aws-sdk/s3-request-presigner": "^3.301.0",
         "deep-email-validator": "^0.1.21",
         "jsonwebtoken": "^9.0.0"
     },

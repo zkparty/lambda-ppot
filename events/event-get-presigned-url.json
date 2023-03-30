@@ -1,0 +1,6 @@
+{
+    "httpMethod": "GET",
+    "queryStringParameters": {
+        "file": "current_state_2.txt"
+    }
+}

@@ -99,6 +99,30 @@ Resources:
         EntryPoints:
           - src/handlers/confirm-email.ts
 
+  getPresignedUrlFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: get-presigned-url.getPresignedUrlHandler
+      Description: Generate a presigned URL for a file download from AWS S3
+      Role: arn:aws:iam::490752553772:role/perpertual-powers-of-tau-lambda
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /get-presigned-url
+            Method: GET
+            RequestParameters:
+            - method.request.querystring.file:
+                Required: true
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - src/handlers/get-presigned-url.ts
+
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
 

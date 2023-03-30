@@ -4,6 +4,7 @@
 
 1. `sam build | sam local invoke requestRetrievalFunction --event .\events\event-request-retrieval.json --env-vars .\env.json`
 2. `sam build | sam local invoke confirmEmailFunction --event .\events\event-confirm-email.json --env-vars .\env.json`
+3. `sam build | sam local invoke getPresignedUrlFunction --event .\events\event-get-presigned-url.json --env-vars .\env.json`
 
 
 
