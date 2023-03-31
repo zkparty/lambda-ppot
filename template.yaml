@@ -103,6 +103,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: get-presigned-url.getPresignedUrlHandler
+      Role: arn:aws:iam::490752553772:role/perpertual-powers-of-tau-lambda
       Description: Generate a presigned URL for a file download from AWS S3
       Events:
         Api:
