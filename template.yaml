@@ -39,6 +39,8 @@ Globals:
         S3_PREFIX: challenges
         RETRIEVAL_TYPE: Bulk
         DAYS_TO_RESTORE: 1
+        ACCESS_CONTROL_ALLOW_ORIGIN: '*'
+        ACCESS_CONTROL_ALLOW_METHODS: 'GET, POST, OPTIONS'
 
 # Resources declares the AWS resources that you want to include in the stack
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
@@ -51,7 +53,6 @@ Resources:
     Properties:
       Handler: request-retrieval.requestRetrievalHandler
       Description: Get request to retrieve images from S3 Glacier Archive.
-      Role: arn:aws:iam::490752553772:role/perpertual-powers-of-tau-lambda
       Policies:
         # Give Create/Read/Update/Delete Permissions to the EmailsTable
       - DynamoDBCrudPolicy:
@@ -76,7 +77,6 @@ Resources:
     Properties:
       Handler: confirm-email.confirmEmailHandler
       Description: Confirm email ownership to retrieve images from S3 Glacier Archive.
-      Role: arn:aws:iam::490752553772:role/perpertual-powers-of-tau-lambda
       Policies:
         # Give Create/Read/Update/Delete Permissions to the EmailsTable
       - DynamoDBWritePolicy:
@@ -104,7 +104,6 @@ Resources:
     Properties:
       Handler: get-presigned-url.getPresignedUrlHandler
       Description: Generate a presigned URL for a file download from AWS S3
-      Role: arn:aws:iam::490752553772:role/perpertual-powers-of-tau-lambda
       Events:
         Api:
           Type: Api
@@ -156,6 +155,7 @@ Resources:
           - Ref: AWS::StackName
       ResourceQuery:
         Type: CLOUDFORMATION_STACK_1_0
+
   ApplicationInsightsMonitoring:
     Type: AWS::ApplicationInsights::Application
     Properties:

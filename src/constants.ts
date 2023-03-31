@@ -14,3 +14,9 @@ export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
 export const S3_PREFIX = process.env.S3_PREFIX;
 export const RETRIEVAL_TYPE = process.env.RETRIEVAL_TYPE;
 export const DAYS_TO_RESTORE = parseInt(process.env.DAYS_TO_RESTORE);
+
+export const HEADERS = {
+    "Access-Control-Allow-Headers" : "Content-Type",
+    "Access-Control-Allow-Origin": process.env.ACCESS_CONTROL_ALLOW_ORIGIN,
+    "Access-Control-Allow-Methods": process.env.ACCESS_CONTROL_ALLOW_METHODS
+}

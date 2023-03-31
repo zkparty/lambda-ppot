@@ -2,7 +2,7 @@
  * Generate a presigned URL for a file download from AWS S3
 */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { REGION, S3_BUCKET_NAME, S3_PREFIX } from "../constants";
+import { HEADERS, REGION, S3_BUCKET_NAME, S3_PREFIX } from "../constants";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { BodyResponse } from "../types";
@@ -26,6 +26,7 @@ export const getPresignedUrlHandler = async (event: APIGatewayProxyEvent): Promi
 function createResponse(data: any, result: boolean): APIGatewayProxyResult {
     return {
         statusCode: 200,
+        headers: HEADERS,
         body: JSON.stringify({
             result: result,
             ...data,

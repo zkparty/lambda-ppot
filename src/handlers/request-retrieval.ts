@@ -30,6 +30,7 @@ import {
     JWT_EXPIRATION_TIME,
     EMAIL_FROM,
     EMAIL_RETURN,
+    HEADERS,
 } from "../constants";
 
 /**
@@ -80,6 +81,7 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
 function createResponse(data: any, registered: boolean): APIGatewayProxyResult {
     return {
         statusCode: 200,
+        headers: HEADERS,
         body: JSON.stringify({
             registered: registered,
             ...data,

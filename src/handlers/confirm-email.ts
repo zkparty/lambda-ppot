@@ -25,7 +25,8 @@ import {
     S3_BUCKET_NAME,
     S3_PREFIX,
     DAYS_TO_RESTORE,
-    RETRIEVAL_TYPE
+    RETRIEVAL_TYPE,
+    HEADERS
 } from "../constants";
 
 
@@ -56,6 +57,7 @@ export const confirmEmailHandler = async (event: APIGatewayProxyEvent): Promise<
 function createResponse(data: any, blacklisted: boolean): APIGatewayProxyResult {
     return {
         statusCode: 200,
+        headers: HEADERS,
         body: JSON.stringify({
             blacklisted: blacklisted,
             ...data,
