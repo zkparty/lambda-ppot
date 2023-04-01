@@ -13,8 +13,8 @@ export const getPresignedUrlHandler = async (event: APIGatewayProxyEvent): Promi
     }
     try {
         const { file } = event.queryStringParameters;
-        const presignedUrlObject = await getPresignedUrl(file);
-        return createResponse({presignedUrlObject}, true);
+        const preSignedUrlObject = await getPresignedUrl(file);
+        return createResponse({preSignedUrlObject}, true);
 
     } catch (error) {
         // catch any error and return information about it
