@@ -3,9 +3,9 @@
 */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { HEADERS, REGION, S3_BUCKET_NAME, S3_PREFIX } from "../constants";
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, HeadObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { BodyResponse } from "../types";
+import { BodyResponse, PresignedUrlObject } from "../types";
 
 export const getPresignedUrlHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     if (event.httpMethod !== 'GET') {
@@ -13,8 +13,8 @@ export const getPresignedUrlHandler = async (event: APIGatewayProxyEvent): Promi
     }
     try {
         const { file } = event.queryStringParameters;
-        const presignedUrl = await getPresignedUrl(file);
-        return createResponse({presignedUrl}, true);
+        const presignedUrlObject = await getPresignedUrl(file);
+        return createResponse({presignedUrlObject}, true);
 
     } catch (error) {
         // catch any error and return information about it
@@ -34,12 +34,13 @@ function createResponse(data: any, result: boolean): APIGatewayProxyResult {
     }
 }
 
-async function getPresignedUrl(file: string): Promise<string> {
+async function getPresignedUrl(file: string): Promise<PresignedUrlObject> {
     const s3Client = new S3Client({ region: REGION });
     const params = {
         Bucket: S3_BUCKET_NAME,
         Key: `${S3_PREFIX}/${file}`,
     };
     const url = await getSignedUrl(s3Client, new GetObjectCommand(params), { expiresIn: 60 });
-    return url;
+    const object = await s3Client.send( new HeadObjectCommand(params) );
+    return {...object, url};
 }

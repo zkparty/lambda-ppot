@@ -1,3 +1,5 @@
+import { HeadObjectCommandOutput } from "@aws-sdk/client-s3";
+
 export interface BodyResponse {
     registered?: boolean,
     blacklisted?: boolean,
@@ -15,4 +17,8 @@ export interface Payload {
     file: string,
     iat?: number,
     exp?: number,
+}
+
+export interface PresignedUrlObject extends HeadObjectCommandOutput {
+    url: string
 }
