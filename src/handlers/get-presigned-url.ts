@@ -8,17 +8,17 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { BodyResponse, PresignedUrlObject } from "../types";
 
 export const getPresignedUrlHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    if (event.httpMethod !== 'GET') {
-        throw new Error(`getPresignedUrl only accepts GET method, you tried: ${event.httpMethod} method.`);
-    }
     try {
+        if (event.httpMethod !== 'GET') {
+            throw new Error(`getPresignedUrl only accepts GET method, you tried: ${event.httpMethod} method.`);
+        }
         const { file } = event.queryStringParameters;
         const preSignedUrlObject = await getPresignedUrl(file);
         return createResponse({preSignedUrlObject}, true);
 
     } catch (error) {
         // catch any error and return information about it
-        console.log("Error: ", error);
+        console.log(error);
         return createResponse({...error}, false);
     }
 }

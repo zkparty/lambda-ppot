@@ -37,10 +37,10 @@ import {
  * Check if email can request retrieval
  */
 export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    if (event.httpMethod !== 'POST') {
-        throw new Error(`requestRetrieval only accepts POST method, you tried: ${event.httpMethod} method.`);
-    }
     try {
+        if (event.httpMethod !== 'POST') {
+            throw new Error(`requestRetrieval only accepts POST method, you tried: ${event.httpMethod} method.`);
+        }
         // get request data
         const { email, file } = JSON.parse(event.body) as Payload;
         // validate email
@@ -73,8 +73,8 @@ export const requestRetrievalHandler = async (event: APIGatewayProxyEvent): Prom
 
     } catch (error) {
         // catch any error and return information about it
-        console.log("Error: ", error);
-        return createResponse(error, false);
+        console.log(error);
+        return createResponse({...error}, false);
     }
 }
 

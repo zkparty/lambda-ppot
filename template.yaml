@@ -15,7 +15,7 @@ Transform:
 Globals:
   Function:
     Runtime: nodejs18.x
-    MemorySize: 128
+    MemorySize: 256
     Timeout: 100
     VpcConfig:
       SecurityGroupIds:
@@ -52,6 +52,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: request-retrieval.requestRetrievalHandler
+      Role: arn:aws:iam::490752553772:role/perpertual-powers-of-tau-lambda
       Description: Get request to retrieve images from S3 Glacier Archive.
       Policies:
         # Give Create/Read/Update/Delete Permissions to the EmailsTable
@@ -62,7 +63,7 @@ Resources:
           Type: Api
           Properties:
             Path: /request-retrieval
-            Method: POST
+            Method: ANY
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -76,6 +77,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: confirm-email.confirmEmailHandler
+      Role: arn:aws:iam::490752553772:role/perpertual-powers-of-tau-lambda
       Description: Confirm email ownership to retrieve images from S3 Glacier Archive.
       Policies:
         # Give Create/Read/Update/Delete Permissions to the EmailsTable
@@ -86,7 +88,7 @@ Resources:
           Type: Api
           Properties:
             Path: /confirm-email
-            Method: GET
+            Method: ANY
             RequestParameters:
             - method.request.querystring.token:
                 Required: true
@@ -110,7 +112,7 @@ Resources:
           Type: Api
           Properties:
             Path: /get-presigned-url
-            Method: GET
+            Method: ANY
             RequestParameters:
             - method.request.querystring.file:
                 Required: true

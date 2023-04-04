@@ -34,10 +34,10 @@ import {
  * Receive token from email and confirm validity
 */
 export const confirmEmailHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    if (event.httpMethod !== 'GET') {
-        throw new Error(`confirmEmail only accepts GET method, you tried: ${event.httpMethod} method.`);
-    }
     try {
+        if (event.httpMethod !== 'GET') {
+            throw new Error(`confirmEmail only accepts GET method, you tried: ${event.httpMethod} method.`);
+        }
         const { token } = event.queryStringParameters;
         const { email, file } = verify(token, JWT_PRIVATE_KEY) as Payload;
 
@@ -49,7 +49,7 @@ export const confirmEmailHandler = async (event: APIGatewayProxyEvent): Promise<
 
     } catch (error) {
         // catch any error and return information about it
-        console.log("Error: ", error);
+        console.log(error);
         return createResponse({...error}, false);
     }
 }
