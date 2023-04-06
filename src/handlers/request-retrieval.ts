@@ -31,6 +31,7 @@ import {
     EMAIL_FROM,
     EMAIL_RETURN,
     HEADERS,
+    TOKEN_WEB_PAGE,
 } from "../constants";
 
 /**
@@ -156,6 +157,7 @@ async function sendEmail(email: string, file: string) {
     const sesClient = new SESClient({ region: REGION });
     const payload: Payload = {email, file};
     const token = sign(payload, JWT_PRIVATE_KEY, { expiresIn: JWT_EXPIRATION_TIME });
+    const linkToVerify = TOKEN_WEB_PAGE + token;
     const paramsForEmail = {
         Destination: {
             ToAddresses: [email],
@@ -170,7 +172,7 @@ async function sendEmail(email: string, file: string) {
                         Powers of Tau contributions. To do so you need to verify your email
                         by clicking the following link:
                     </p>
-                    <a href="${token}">${token}</a>
+                    <a href="${linkToVerify}">${linkToVerify}</a>
                     <p>
                         If you did not send this request. Please ignore this email.
                     </p>
