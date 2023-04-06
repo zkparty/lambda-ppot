@@ -2,7 +2,7 @@ import { HeadObjectCommandOutput } from "@aws-sdk/client-s3";
 
 export interface BodyResponse {
     registered?: boolean,
-    blacklisted?: boolean,
+    verified?: boolean,
     notified?: boolean,
 }
 

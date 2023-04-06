@@ -54,12 +54,12 @@ export const confirmEmailHandler = async (event: APIGatewayProxyEvent): Promise<
     }
 }
 
-function createResponse(data: any, blacklisted: boolean): APIGatewayProxyResult {
+function createResponse(data: any, verified: boolean): APIGatewayProxyResult {
     return {
         statusCode: 200,
         headers: HEADERS,
         body: JSON.stringify({
-            blacklisted: blacklisted,
+            verified: verified,
             ...data,
         } as BodyResponse)
     }
